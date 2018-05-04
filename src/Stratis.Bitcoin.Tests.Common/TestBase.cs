@@ -11,25 +11,18 @@ namespace Stratis.Bitcoin.Tests.Common
 {
     public class TestBase
     {
-        /// <summary>Factory for creating loggers.</summary>
-        public readonly ILoggerFactory loggerFactory;
+        public Network Network { get; }
 
         /// <summary>
         /// Initializes logger factory for inherited tests.
         /// </summary>
-        public TestBase()
+        public TestBase(Network network)
         {
-            this.loggerFactory = new LoggerFactory();
+            this.Network = network;
             DBreezeSerializer serializer = new DBreezeSerializer();
-            serializer.Initialize();
+            serializer.Initialize(this.Network); 
         }
-
-        public static DataFolder AssureEmptyDirAsDataFolder(string dir)
-        {
-            var dataFolder = new DataFolder(new NodeSettings(args:new string[] { $"-datadir={AssureEmptyDir(dir)}" }).DataDir);
-            return dataFolder;
-        }
-
+        
         public static string AssureEmptyDir(string dir)
         {
             if (Directory.Exists(dir))
@@ -49,7 +42,8 @@ namespace Stratis.Bitcoin.Tests.Common
         public static DataFolder CreateDataFolder(object caller, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             string directoryPath = GetTestDirectoryPath(caller, callingMethod);
-            return AssureEmptyDirAsDataFolder(directoryPath);
+            var dataFolder = new DataFolder(new NodeSettings(args: new string[] { $"-datadir={AssureEmptyDir(directoryPath)}" }).DataDir);
+            return dataFolder;
         }
 
         /// <summary>
@@ -92,7 +86,7 @@ namespace Stratis.Bitcoin.Tests.Common
             for (int i = 0; i < amount; i++)
             {
                 Block block = this.CreateBlock(i);
-                block.Header.HashPrevBlock = blocks.LastOrDefault()?.GetHash() ?? Network.Main.GenesisHash;
+                block.Header.HashPrevBlock = blocks.LastOrDefault()?.GetHash() ?? this.Network.GenesisHash;
                 blocks.Add(block);
             }
 

@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using Moq;
+using NBitcoin;
 using Stratis.Bitcoin.Configuration;
 using Stratis.Bitcoin.P2P;
 using Stratis.Bitcoin.Tests.Common;
@@ -18,6 +19,10 @@ namespace Stratis.Bitcoin.Features.Dns.Tests
     /// </summary>
     public class GivenADnsFeature : TestBase
     {
+        public GivenADnsFeature() : base(Network.Main)
+        {
+        }
+
         [Fact]
         [Trait("DNS", "UnitTest")]
         public void WhenConstructorCalled_AndDnsServerIsNull_ThenArgumentNullExceptionIsThrown()
@@ -161,8 +166,7 @@ namespace Stratis.Bitcoin.Features.Dns.Tests
             Mock<IWhitelistManager> whitelistManager = new Mock<IWhitelistManager>();
 
             Mock<INodeLifetime> nodeLifetime = new Mock<INodeLifetime>();
-            NodeSettings nodeSettings = NodeSettings.Default();
-            nodeSettings.DataDir = Directory.GetCurrentDirectory();
+            NodeSettings nodeSettings = new NodeSettings(args:new string[] { $"-datadir={Directory.GetCurrentDirectory()}" });
             DataFolder dataFolder = CreateDataFolder(this);
 
             Mock<ILogger> logger = new Mock<ILogger>(MockBehavior.Loose);
@@ -207,8 +211,7 @@ namespace Stratis.Bitcoin.Features.Dns.Tests
             nodeLifetime.Setup(n => n.ApplicationStopping).Returns(source.Token);
             INodeLifetime nodeLifetimeObject = nodeLifetime.Object;
 
-            NodeSettings nodeSettings = NodeSettings.Default();
-            nodeSettings.DataDir = Directory.GetCurrentDirectory();
+            NodeSettings nodeSettings = new NodeSettings(args:new string[] { $"-datadir={ Directory.GetCurrentDirectory() }" });
             DataFolder dataFolder = CreateDataFolder(this);
 
             Mock<ILogger> logger = new Mock<ILogger>(MockBehavior.Loose);
@@ -250,8 +253,7 @@ namespace Stratis.Bitcoin.Features.Dns.Tests
             nodeLifetime.Setup(n => n.ApplicationStopping).Returns(source.Token);
             INodeLifetime nodeLifetimeObject = nodeLifetime.Object;
 
-            NodeSettings nodeSettings = NodeSettings.Default();
-            nodeSettings.DataDir = Directory.GetCurrentDirectory();
+            NodeSettings nodeSettings = new NodeSettings(args: new string[] { $"-datadir={ Directory.GetCurrentDirectory() }" });
             DataFolder dataFolder = CreateDataFolder(this);
 
             Mock<ILogger> logger = new Mock<ILogger>();
@@ -300,8 +302,7 @@ namespace Stratis.Bitcoin.Features.Dns.Tests
             nodeLifetime.Setup(n => n.ApplicationStopping).Returns(source.Token);
             INodeLifetime nodeLifetimeObject = nodeLifetime.Object;
 
-            NodeSettings nodeSettings = NodeSettings.Default();
-            nodeSettings.DataDir = Directory.GetCurrentDirectory();
+            NodeSettings nodeSettings = new NodeSettings(args: new string[] { $"-datadir={ Directory.GetCurrentDirectory() }" });
             DataFolder dataFolder = CreateDataFolder(this);
 
             using (DnsFeature feature = new DnsFeature(dnsServer, whitelistManager, loggerFactory, nodeLifetimeObject, new DnsSettings().Load(nodeSettings), nodeSettings, dataFolder, asyncLoopFactory))

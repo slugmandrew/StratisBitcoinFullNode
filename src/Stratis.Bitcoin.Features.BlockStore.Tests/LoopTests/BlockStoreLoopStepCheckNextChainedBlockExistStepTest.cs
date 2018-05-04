@@ -13,7 +13,7 @@ namespace Stratis.Bitcoin.Features.BlockStore.Tests.LoopTests
         {
             var blocks = this.CreateBlocks(5);
 
-            using (var fluent = new FluentBlockStoreLoop())
+            using (var fluent = new FluentBlockStoreLoop(CreateDataFolder(this)))
             {
                 // Push 5 blocks to the repository
                 fluent.BlockRepository.PutAsync(blocks.Last().GetHash(), blocks).GetAwaiter().GetResult();
@@ -30,12 +30,11 @@ namespace Stratis.Bitcoin.Features.BlockStore.Tests.LoopTests
                 Assert.Null(fluent.Loop.StoreTip);
 
                 var nextChainedBlock = block04;
-                var checkExistsStep = new CheckNextChainedBlockExistStep(fluent.Loop, this.loggerFactory);
+                var checkExistsStep = new CheckNextChainedBlockExistStep(fluent.Loop, this.LoggerFactory.Object);
                 checkExistsStep.ExecuteAsync(nextChainedBlock, new CancellationToken(), false).GetAwaiter().GetResult();
 
-                var options = NetworkOptions.TemporaryOptions;
-                Assert.Equal(fluent.Loop.StoreTip.Header.GetHash(options), block04.Header.GetHash(options));
-                Assert.Equal(fluent.Loop.BlockRepository.BlockHash, block04.Header.GetHash(options));
+                Assert.Equal(fluent.Loop.StoreTip.Header.GetHash(), block04.Header.GetHash());
+                Assert.Equal(fluent.Loop.BlockRepository.BlockHash, block04.Header.GetHash());
             }
         }
     }
